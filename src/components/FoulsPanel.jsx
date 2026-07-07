@@ -12,7 +12,8 @@ function FoulDots({ count }) {
         <span
           key={i}
           className={`h-2 w-2 rounded-full ${
-            i < count ? (count >= WPBA.playerFoulLimit ? 'bg-red-600' : i >= WPBA.playerFoulLimit - 2 ? 'bg-amber-500' : 'bg-slate-600') : 'bg-slate-200'
+            // per the player-lifecycle diagram: warn at fouls 4–5, red at 6 (DQ)
+            i < count ? (count >= WPBA.playerFoulLimit ? 'bg-red-600' : i >= WPBA.playerFoulLimit - 3 ? 'bg-amber-500' : 'bg-slate-600') : 'bg-slate-200'
           }`}
         />
       ))}
