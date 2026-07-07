@@ -70,6 +70,18 @@ describe('logReducer', () => {
     expect(log[7].text).toBe('Correction: voids event #2 — wrong shooter');
   });
 
+  it('renders malformed events without crashing or inventing values', () => {
+    const malformed = [
+      { seq: 1, ts: 0, period: 1, type: 'SHOT_MADE', team: 'home', playerId: '675230-3', payload: {} },
+      { seq: 2, ts: 0, period: 1, type: 'FT_MADE', team: 'home', playerId: '675230-3', payload: null },
+      { seq: 3, ts: 0, period: 1, type: 'CORRECTION', team: null, playerId: null, payload: null },
+    ];
+    const out = logReducer(malformed, rosters);
+    expect(out[0].text).toContain('?-point shot'); // no fabricated point value
+    expect(out[1].text).toBe('#3 Alayna Contreras (Oakland Swish) made free throw');
+    expect(out[2].voided).toBe(false); // a CORRECTION without voidsSeq voids nothing
+  });
+
   it('labels OT periods correctly', () => {
     const otLog = logReducer([{ seq: 1, ts: 0, period: 5, type: 'PERIOD_START', team: null, playerId: null, payload: { period: 5 } }], rosters);
     const doubleOtLog = logReducer([{ seq: 1, ts: 0, period: 6, type: 'PERIOD_START', team: null, playerId: null, payload: { period: 6 } }], rosters);

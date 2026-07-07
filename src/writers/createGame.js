@@ -5,7 +5,8 @@
 
 export function createGame({ home, away, rulesProfile = 'WPBA' }) {
   const slug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  const dateStamp = new Date().toISOString().slice(0, 10);
+  // Local date, not UTC — an evening game must not get tomorrow's gameId.
+  const dateStamp = new Date().toLocaleDateString('en-CA');
 
   return {
     gameId: `wpba-${dateStamp}-${slug(home.team.name)}-${slug(away.team.name)}`,

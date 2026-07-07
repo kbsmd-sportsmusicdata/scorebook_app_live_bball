@@ -10,7 +10,7 @@
 export function voidedSeqs(events) {
   const voided = new Set();
   for (const event of events) {
-    if (event.type === 'CORRECTION' && !voided.has(event.seq)) {
+    if (event.type === 'CORRECTION' && !voided.has(event.seq) && event.payload?.voidsSeq != null) {
       voided.add(event.payload.voidsSeq);
     }
   }

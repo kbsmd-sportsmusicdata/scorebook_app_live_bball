@@ -12,7 +12,7 @@ import { voidedSeqs } from './voids.js';
 function playerLookup(rosters) {
   const byId = new Map();
   for (const side of ['home', 'away']) {
-    for (const player of rosters[side].players) {
+    for (const player of rosters?.[side]?.players ?? []) {
       byId.set(player.playerId, player);
     }
   }
@@ -20,7 +20,8 @@ function playerLookup(rosters) {
 }
 
 function describe(event, { players, teamNames }) {
-  const { type, payload, team } = event;
+  const { type, team } = event;
+  const payload = event.payload ?? {}; // never crash rendering the log on a malformed event
   const teamName = teamNames[team] ?? '';
   const player = players.get(event.playerId);
   const who = player
@@ -30,16 +31,19 @@ function describe(event, { players, teamNames }) {
       : teamName;
 
   switch (type) {
+    // '?' for a missing point value on purpose: this is a scorer's record, so
+    // an obviously-broken entry beats a fabricated plausible one.
     case 'SHOT_MADE':
-      return `${who} made a ${payload.points}-point shot`;
+      return `${who} made a ${payload.points ?? '?'}-point shot`;
     case 'SHOT_MISSED':
-      return `${who} missed a ${payload.shotValue}-point attempt`;
+      return `${who} missed a ${payload.shotValue ?? '?'}-point attempt`;
     case 'FT_MADE':
     case 'FT_MISSED': {
       const result = type === 'FT_MADE' ? 'made' : 'missed';
-      const { n, of } = payload.attemptOf;
+      const { n, of } = payload.attemptOf ?? {};
+      const attempt = n != null && of != null ? ` ${n} of ${of}` : '';
       const context = payload.context ? ` (${payload.context})` : '';
-      return `${who} ${result} free throw ${n} of ${of}${context}`;
+      return `${who} ${result} free throw${attempt}${context}`;
     }
     case 'FOUL': {
       const shooting = payload.shooting ? ', shooting' : '';
@@ -79,7 +83,11 @@ function describe(event, { players, teamNames }) {
 export function logReducer(events, rosters) {
   const context = {
     players: playerLookup(rosters),
-    teamNames: { home: rosters.home.name, away: rosters.away.name, league: 'League' },
+    teamNames: {
+      home: rosters?.home?.name ?? 'Home',
+      away: rosters?.away?.name ?? 'Away',
+      league: 'League',
+    },
   };
   const voided = voidedSeqs(events);
 

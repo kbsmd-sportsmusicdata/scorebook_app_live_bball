@@ -34,6 +34,11 @@ export default function EventInspector({ game, onAppend }) {
     setType(nextType);
     setPayloadText(JSON.stringify(templateFor(nextType, events), null, 2));
     setError(null);
+    // 'league' is only a valid team for TIMEOUT — don't let it leak into other events.
+    if (nextType !== 'TIMEOUT' && team === 'league') {
+      setTeam('home');
+      setPlayerId('');
+    }
   };
 
   const append = () => {
@@ -85,7 +90,10 @@ export default function EventInspector({ game, onAppend }) {
               <span className="font-medium text-slate-600">Team</span>
               <select
                 value={team}
-                onChange={(e) => setTeam(e.target.value)}
+                onChange={(e) => {
+                  setTeam(e.target.value);
+                  setPlayerId(''); // a player belongs to one team — never carry across
+                }}
                 className="rounded-lg border border-slate-300 px-2 py-1.5"
               >
                 <option value="home">home — {rosters.home.name}</option>

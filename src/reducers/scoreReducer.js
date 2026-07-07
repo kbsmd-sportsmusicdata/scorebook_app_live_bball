@@ -25,12 +25,13 @@ export function scoreReducer(events) {
   };
 
   for (const event of activeEvents(events)) {
+    if (event.period == null) continue; // malformed — appendEvent never emits this
     if (event.type === 'PERIOD_START') {
       periodEntry(event.period);
       continue;
     }
     const points = pointsFor(event);
-    if (points > 0) {
+    if (points > 0 && (event.team === 'home' || event.team === 'away')) {
       totals[event.team] += points;
       periodEntry(event.period)[event.team] += points;
     }
