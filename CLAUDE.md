@@ -90,7 +90,7 @@ tests/             Vitest fixtures ported from spec/test-scenarios.md
 
 - [x] **Phase 0** — Scaffold + roster CSV ingestion (apply the jersey-number parser fallback here) — *the `team_color` column was missing from the CSV as first committed; official 2026 colors (from Krystal, 2026-07-07) are now in the CSV, with `src/data/teamColors.js` as a same-valued fallback*
 - [x] **Phase 1** — Event log core (`appendEvent`, taxonomy, `scoreReducer`, `logReducer`, dev event inspector)
-- [x] **Phase 2** — `src/rules/wpba.js` + foul/bonus reducers, verified against all 16 test scenarios first — *scenario slices owed by later phases: S8 (P3 wizard), S10 (P3 game end), S11 (P5 timeouts), S12 (P5 quarter points), S13 (P4 undo), S14 (P5 round-trip); one S16 internal inconsistency flagged in `tests/scenarios.test.js` awaiting Krystal's ruling*
+- [x] **Phase 2** — `src/rules/wpba.js` + foul/bonus reducers, verified against all 16 test scenarios first — *scenario slices owed by later phases: S8 (P3 wizard), S10 (P3 game end), S11 (P5 timeouts), S12 (P5 quarter points), S13 (P4 undo), S14 (P5 round-trip); S16 inconsistency RESOLVED (Krystal, 2026-07-07): re-entry/compound technicals award their penalty but do NOT feed the 2-tech ejection ladder — only conduct technicals do; tracked as `reentryTechnicals` in `playerStatsReducer`*
 - [ ] **Phase 3** — Input UI: foul wizard (per `foul-wizard-flowchart.mermaid`, with the two dry-run fixes applied), substitution UI
 - [ ] **Phase 4** — Undo/redo + `CORRECTION` events
 - [ ] **Phase 5** — Derived views: running score, timeouts, quarter-points standings, box score, JSON export

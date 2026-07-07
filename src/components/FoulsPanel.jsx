@@ -90,7 +90,12 @@ export default function FoulsPanel({ teamFouls, playerStats, rosters }) {
                       <td className="py-1">
                         <FoulDots count={s.fouls} />
                       </td>
-                      <td className="py-1 text-center tabular-nums">{s.technicals > 0 ? s.technicals : ''}</td>
+                      <td
+                        className="py-1 text-center tabular-nums"
+                        title={s.reentryTechnicals > 0 ? `${s.technicals} conduct + ${s.reentryTechnicals} re-entry` : undefined}
+                      >
+                        {s.technicals + s.reentryTechnicals > 0 ? s.technicals + s.reentryTechnicals : ''}
+                      </td>
                       <td className="py-1 text-right font-semibold tabular-nums">{s.pts}</td>
                     </tr>
                   );

@@ -349,7 +349,7 @@ describe('Scenario 16 — re-entry under penalty (playerStats slice)', () => {
   ];
 
   it('after #90: H22 charged 1 technical for the act of re-entering', () => {
-    expect(statsFor(playerStatsReducer(reentry), 'H22').technicals).toBe(1);
+    expect(statsFor(playerStatsReducer(reentry), 'H22').reentryTechnicals).toBe(1);
   });
 
   // #95 — the wizard emits the base foul AND the compounding linked technical
@@ -362,22 +362,32 @@ describe('Scenario 16 — re-entry under penalty (playerStats slice)', () => {
   it('after #95: personal fouls +1 AND technicals +1', () => {
     expect(statsFor(playerStatsReducer(afterCompound), 'H22')).toMatchObject({
       fouls: 1,
-      technicals: 2,
+      reentryTechnicals: 2,
     });
   });
 
-  it('compounding technicals feed the same ejection ladder as any other technical', () => {
-    // 1 re-entry tech + 1 compound tech = 2 → the standard 2-tech ejection applies
-    expect(statsFor(playerStatsReducer(afterCompound), 'H22').ejected).toBe(true);
+  it("Krystal's ruling (2026-07-07): re-entry/compound technicals do NOT feed the ejection ladder", () => {
+    // 1 re-entry tech + 1 compound tech — NOT ejected; the penalty compounds,
+    // the ladder does not. (Resolves the S16 internal inconsistency the spec's
+    // own #110 continuation implied.)
+    expect(statsFor(playerStatsReducer(afterCompound), 'H22').ejected).toBe(false);
   });
 
-  // ⚠ FLAGGED (see PR/summary, not silently resolved): by S16's own ladder
-  // statement, H22 reaches 2 technicals at #95 and is ejected — yet the
-  // scenario's narrative continues to #110 with her still playing. The
-  // reducers below record whatever is in the log (the app records, it does
-  // not enforce legality), so #110's stated counts are still asserted; the
-  // contradiction is about whether #110 could legally occur, which needs
-  // Krystal's ruling before the Phase 3 wizard blocks or allows it.
+  it('a genuine conduct technical still feeds the ladder for a re-entered player', () => {
+    const withConductTechs = [
+      ...afterCompound,
+      ev(4, 'FOUL', 'home', 'H22', { foulType: 'technical' }),
+      ev(4, 'FOUL', 'home', 'H22', { foulType: 'technical' }),
+    ];
+    expect(statsFor(playerStatsReducer(withConductTechs), 'H22').ejected).toBe(true);
+  });
+
+  // RESOLVED (Krystal, 2026-07-07): the S16 inconsistency (spec text said
+  // compound techs feed the 2-tech ladder, yet its own #110 continuation had
+  // H22 still playing after 2) is ruled in favor of the continuation — a
+  // re-entered player is NOT ejected by re-entry/compound technicals; each
+  // foul still compounds a technical PLUS the base foul's penalty. Only
+  // genuine conduct technicals feed the ladder. #110 is therefore legal:
   const afterShootingCompound = [
     ...afterCompound,
     ev(4, 'FOUL', 'home', 'H22', {
@@ -390,10 +400,11 @@ describe('Scenario 16 — re-entry under penalty (playerStats slice)', () => {
     ev(4, 'FOUL', 'home', 'H22', { foulType: 'technical', source: 'reentryPenalty', linkedSeq: 5 }),
   ];
 
-  it('after #110: personal fouls +1, technicals +1 (counts keep accruing as logged)', () => {
+  it('after #110: personal fouls +1, technicals +1 — and still not ejected', () => {
     expect(statsFor(playerStatsReducer(afterShootingCompound), 'H22')).toMatchObject({
       fouls: 2,
-      technicals: 3,
+      reentryTechnicals: 3,
+      ejected: false,
     });
   });
 

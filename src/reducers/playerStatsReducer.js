@@ -15,7 +15,12 @@ export const emptyStats = () => ({
   ftm: 0,
   fta: 0,
   fouls: 0, // count toward the 6-foul DQ limit
-  technicals: 0,
+  technicals: 0, // conduct technicals — these feed the ejection ladder
+  // S16 re-entry-under-penalty technicals (the re-entry itself + the
+  // compounding tech on each subsequent foul). Krystal's ruling (2026-07-07):
+  // they award the technical's penalty but do NOT feed the 2-tech ejection
+  // ladder — a re-entered player is not ejected by her compound technicals.
+  reentryTechnicals: 0,
   flagrant1: 0,
   flagrant2: 0,
   dq: false,
@@ -27,7 +32,8 @@ export const statsFor = (stats, playerId) => stats[playerId] ?? emptyStats();
 
 // The ejection ladder, derived in ONE place (dry-run trace finding 4): every
 // consumer — reducers, wizard branches, UI — must call this, never re-derive.
-// 2 technicals, 2 FF1s, or any FF2 (immediateEjection) → ejected + suspension.
+// 2 CONDUCT technicals, 2 FF1s, or any FF2 (immediateEjection) → ejected +
+// suspension. reentryTechnicals are deliberately absent (Krystal's S16 ruling).
 export function isEjected(stats) {
   return (
     stats.technicals >= WPBA.technicals.ejectionAt ||
@@ -79,8 +85,12 @@ export function playerStatsReducer(events) {
         break;
       case 'FOUL': {
         const foulType = event.payload?.foulType;
-        if (foulType === 'technical') s.technicals += 1;
-        else if (foulType === 'flagrant1') s.flagrant1 += 1;
+        if (foulType === 'technical') {
+          // Compounding techs from the re-entry-under-penalty state are
+          // tracked apart from conduct techs (Krystal's S16 ruling).
+          if (event.payload?.source === 'reentryPenalty') s.reentryTechnicals += 1;
+          else s.technicals += 1;
+        } else if (foulType === 'flagrant1') s.flagrant1 += 1;
         else if (foulType === 'flagrant2') s.flagrant2 += 1;
         s.fouls += countsTowardSix(foulType);
         break;
@@ -88,7 +98,7 @@ export function playerStatsReducer(events) {
       case 'SUB_IN':
         // S16: re-entering under penalty is itself a technical foul, charged
         // the moment she steps back on court — no separate FOUL event exists.
-        if (event.payload?.ruleException) s.technicals += 1;
+        if (event.payload?.ruleException) s.reentryTechnicals += 1;
         break;
       default:
         break;
