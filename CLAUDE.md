@@ -89,7 +89,7 @@ tests/             Vitest fixtures ported from spec/test-scenarios.md
 ## Phase sequence (full detail in `spec/project-plan.md` §6)
 
 - [x] **Phase 0** — Scaffold + roster CSV ingestion (apply the jersey-number parser fallback here) — *the `team_color` column was missing from the CSV as first committed; official 2026 colors (from Krystal, 2026-07-07) are now in the CSV, with `src/data/teamColors.js` as a same-valued fallback*
-- [ ] **Phase 1** — Event log core (`appendEvent`, taxonomy, `scoreReducer`, `logReducer`, dev event inspector)
+- [x] **Phase 1** — Event log core (`appendEvent`, taxonomy, `scoreReducer`, `logReducer`, dev event inspector)
 - [ ] **Phase 2** — `src/rules/wpba.js` + foul/bonus reducers, verified against all 16 test scenarios first
 - [ ] **Phase 3** — Input UI: foul wizard (per `foul-wizard-flowchart.mermaid`, with the two dry-run fixes applied), substitution UI
 - [ ] **Phase 4** — Undo/redo + `CORRECTION` events
