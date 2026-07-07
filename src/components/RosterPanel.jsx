@@ -27,7 +27,14 @@ export default function RosterPanel({ team, starterIds, onToggleStarter, starter
                 className={`flex w-full items-center gap-3 rounded-lg border-2 bg-white px-3 py-2 text-left transition
                   ${isStarter ? 'shadow-sm' : 'border-slate-200 hover:border-slate-400'}
                   ${blocked ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
-                style={isStarter ? { borderColor: team.color, backgroundColor: `${team.color}14` } : undefined}
+                style={
+                  isStarter
+                    ? {
+                        borderColor: team.color,
+                        backgroundColor: `color-mix(in srgb, ${team.color} 8%, transparent)`,
+                      }
+                    : undefined
+                }
                 aria-pressed={isStarter}
               >
                 <span

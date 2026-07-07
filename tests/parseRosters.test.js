@@ -55,6 +55,21 @@ describe('parseRosters', () => {
     }
   });
 
+  it('sorts non-numeric jersey placeholders after numeric jerseys without crashing', () => {
+    const withPlaceholders = [
+      'type,season,team_id,team_name,team_logo,full_name,position,jersey_number',
+      'player,2026,675230,Oakland Swish,https://x/logo.svg,Zoe Numeric,G,4',
+      'player,2026,675230,Oakland Swish,https://x/logo.svg,Ada Placeholder,F,TBD',
+      'player,2026,675230,Oakland Swish,https://x/logo.svg,Bea Blank,C,',
+    ].join('\n');
+    const parsed = parseRosters(withPlaceholders);
+    expect(parsed.teamsById['675230'].players.map((p) => p.name)).toEqual([
+      'Zoe Numeric',
+      'Ada Placeholder',
+      'Bea Blank',
+    ]);
+  });
+
   it('prefers a team_color CSV column over the fallback palette when present', () => {
     const withColor = [
       'type,season,team_id,team_name,team_logo,full_name,position,jersey_number,team_color',

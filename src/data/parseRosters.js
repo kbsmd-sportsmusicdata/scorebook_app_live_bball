@@ -56,8 +56,8 @@ export function parseRosters(csvText) {
     if (!team) {
       team = {
         teamId: row.team_id,
-        name: row.team_name,
-        logo: row.team_logo,
+        name: row.team_name || `Team ${row.team_id}`,
+        logo: row.team_logo || '',
         color: teamColorFor(row),
         players: [],
         coaches: [],
@@ -78,13 +78,17 @@ export function parseRosters(csvText) {
     }
   }
 
+  // Non-numeric jerseys (blank, or placeholders like 'TBD') sort after real numbers.
+  const jerseyRank = (jersey) => {
+    const n = Number(jersey);
+    return jersey === null || Number.isNaN(n) ? Infinity : n;
+  };
+
   const teams = Object.values(teamsById).sort((a, b) => a.name.localeCompare(b.name));
   for (const team of teams) {
-    team.players.sort((a, b) => {
-      const aj = a.jersey === null ? Infinity : Number(a.jersey);
-      const bj = b.jersey === null ? Infinity : Number(b.jersey);
-      return aj - bj || a.name.localeCompare(b.name);
-    });
+    team.players.sort(
+      (a, b) => jerseyRank(a.jersey) - jerseyRank(b.jersey) || a.name.localeCompare(b.name),
+    );
   }
 
   return { teams, teamsById };
