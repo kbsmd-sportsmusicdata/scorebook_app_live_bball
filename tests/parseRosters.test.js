@@ -48,11 +48,13 @@ describe('parseRosters', () => {
     expect(swish.coaches).toHaveLength(4); // 1 HC + 3 ACs — real variation, not an error
   });
 
-  it('applies a #-prefixed color to every team (fallback palette until the CSV gains team_color)', () => {
+  it('applies each team_color from the CSV with a # prefix', () => {
     for (const team of teams) {
       expect(team.color).toMatch(/^#[0-9a-fA-F]{6}$/);
       expect(team.logo).toMatch(/^https:\/\//);
     }
+    expect(teamsById['675230'].color).toBe('#394F6E'); // Oakland Swish
+    expect(teamsById['675231'].color).toBe('#8A2B46'); // Alameda Wolves
   });
 
   it('sorts non-numeric jersey placeholders after numeric jerseys without crashing', () => {

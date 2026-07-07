@@ -3,10 +3,9 @@ import { FALLBACK_TEAM_COLORS, DEFAULT_TEAM_COLOR } from './teamColors.js';
 
 // Roster CSV ingestion (Phase 0).
 // Columns in docs/rosters/wpba_2026_rosters_master.csv:
-//   type, season, team_id, team_name, team_logo, full_name, position, jersey_number
-// An optional `team_color` column (6-char hex, no # prefix — per
-// spec/csv-validation-report.md) is honored if present; the repo's current CSV
-// lacks it, so we fall back to src/data/teamColors.js.
+//   type, season, team_id, team_name, team_color, team_logo, full_name, position, jersey_number
+// team_color is 6-char hex with no # prefix (spec/csv-validation-report.md);
+// rows missing it fall back to src/data/teamColors.js.
 
 // Slug fallback for the player ID key when jersey_number is blank
 // (spec/csv-validation-report.md, recommended fix #3). Today this covers

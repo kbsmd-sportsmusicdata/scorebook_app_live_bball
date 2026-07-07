@@ -1,22 +1,19 @@
-// [DATA GAP] The roster CSV in docs/rosters/ has NO team_color column, even though
-// spec/csv-validation-report.md describes one ("all valid 6-char hex, no # prefix").
-// The CSV that was validated is evidently not the copy that landed in this repo.
-//
-// Until a corrected CSV arrives, these placeholders (keyed by team_id, loosely themed
-// on each team name) fill the gap. parseRosters() prefers a `team_color` CSV column
-// whenever one exists, so dropping in the corrected CSV fixes colors with zero code
-// changes. Values here are 6-char hex WITHOUT the # prefix, matching the CSV
-// convention the validation report describes; the parser adds the #.
+// Backup team-color map, keyed by team_id. The primary source is the
+// `team_color` column in docs/rosters/wpba_2026_rosters_master.csv (6-char hex,
+// no # prefix — parseRosters() adds the #); this map only applies to a roster
+// row that lacks the column, so a future CSV drop missing it degrades
+// gracefully instead of rendering colorless. Values mirror the official 2026
+// palette supplied by Krystal (2026-07-07) — keep them in sync with the CSV.
 
 export const FALLBACK_TEAM_COLORS = {
-  675230: '00843d', // Oakland Swish — green
-  675231: '4b5563', // Alameda Wolves — wolf gray
-  675232: '5b21b6', // Berkeley Royals — royal purple
-  675233: '1e40af', // Tech City Titans — titan blue
-  675234: '0e7490', // San Francisco Riptide — deep teal
-  675235: 'ea580c', // Bay Area Phoenix — phoenix orange
-  675236: 'dc2626', // Bay City Blaze — blaze red
-  675237: 'ca8a04', // Hayward Reign — regal gold
+  675230: '394F6E', // Oakland Swish
+  675231: '8A2B46', // Alameda Wolves
+  675232: '00B2A9', // Berkeley Royals
+  675233: '1E6340', // Tech City Titans
+  675234: '007889', // San Francisco Riptide
+  675235: 'FD3028', // Bay Area Phoenix
+  675236: 'F20808', // Bay City Blaze
+  675237: '582D81', // Hayward Reign
 };
 
 export const DEFAULT_TEAM_COLOR = '334155'; // slate, for any team with no mapping
