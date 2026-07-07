@@ -1,0 +1,22 @@
+stateDiagram-v2
+    [*] --> Bench : on roster
+    Bench --> OnCourt : SUB_IN
+    OnCourt --> Bench : SUB_OUT
+
+    state "OnCourt (fouls 0-5 accumulate, dots fill, warn at 4-5)" as OnCourt
+
+    OnCourt --> Disqualified : 6th personal foul (S5)
+    OnCourt --> Ejected : 2nd technical, 2nd FF1, or any FF2 (S7)
+    Bench --> Ejected : bench or coach technicals reach the ladder
+
+    state "Disqualified" as Disqualified
+    note right of Disqualified : DQ foul STILL counts toward team total. If owed FTs - coach picks the sub, sub shoots and MUST remain in game.
+
+    Disqualified --> ReentryUnderPenalty : team drops below 5 eligible players - last DQ'd (not ejected) player returns
+
+    state "Re-entry Under Penalty" as ReentryUnderPenalty
+    note right of ReentryUnderPenalty : Rulebook edge case - re-entry itself is a technical foul, and EVERY foul she commits is a technical PLUS the base foul's penalty.
+
+    ReentryUnderPenalty --> Ejected : ejectable offense still applies
+    Disqualified --> [*] : game ends
+    Ejected --> [*] : game ends, next-game suspension recorded

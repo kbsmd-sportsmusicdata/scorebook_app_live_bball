@@ -1,0 +1,27 @@
+stateDiagram-v2
+    [*] --> Setup : pick teams from WPBA roster CSV
+    Setup --> Regulation : PERIOD_START Q1
+
+    state "Regulation Q1-Q4 (team fouls reset each quarter, penalty at 5)" as Regulation {
+        [*] --> Normal
+        Normal --> LastTwoRules : LAST_TWO_START tapped at 2:00 (S2)
+        LastTwoRules --> Normal : PERIOD_START next quarter disarms marker
+    }
+
+    Regulation --> Ended : Q4 ends, score not tied
+    Regulation --> Overtime : Q4 ends tied (jump ball, A/P after tip)
+
+    state "Overtime 3:00 (FRESH foul count, penalty at 2 - S9)" as Overtime {
+        [*] --> OTNormal
+        OTNormal --> OTLastTwo : LAST_TWO_START at OT 2:00 mark
+    }
+    note right of Overtime : Each team gets 1 fresh 30s timeout, no carryover
+
+    Overtime --> Ended : OT ends, not tied
+    Overtime --> SuddenDeath : OT ends tied
+
+    state "Double OT - SUDDEN DEATH (S10)" as SuddenDeath
+    note right of SuddenDeath : First score of any kind wins. A made FT counts, an offensive foul does not.
+
+    SuddenDeath --> Ended : FIRST SCORE
+    Ended --> [*] : GAME_END, quarterPointsReducer finalizes the 7-point split

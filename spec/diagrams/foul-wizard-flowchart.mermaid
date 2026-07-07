@@ -1,0 +1,58 @@
+flowchart TD
+    A["FOUL tapped"] --> B["Select committing player<br/>(player / coach / bench)"]
+    B --> C{"Foul type?"}
+
+    C -->|"Offensive — S6"| O1["Player foul +1<br/>NO team foul, NO FTs<br/>even in the bonus"]
+    O1 --> O2["Possession flips, side-out"]
+    O2 --> Z
+
+    C -->|"Personal"| P1{"Shooting foul?"}
+    P1 -->|"No"| P2{"Penalty? derived, never stored<br/>5th team foul — S1<br/>OR 2nd after LAST_TWO_START — S2<br/>OR 2nd team foul in OT — S9"}
+    P2 -->|"No"| P3["No FTs — side-out"]
+    P3 --> Z
+    P2 -->|"Yes"| P4["2 FTs — fouled player shoots"]
+    P4 --> FT
+
+    P1 -->|"Yes"| P5{"Shot made? — S4"}
+    P5 -->|"Yes: and-one"| P6["Basket counts<br/>exactly 1 FT, fouled player"]
+    P6 --> FT
+    P5 -->|"No"| P7{"2pt or 3pt attempt?"}
+    P7 -->|"2"| P8["2 FTs, fouled player"]
+    P7 -->|"3"| P9["3 FTs, fouled player"]
+    P8 --> FT
+    P9 --> FT
+
+    C -->|"Technical — S7"| T1{"Excessive timeout?"}
+    T1 -->|"Yes"| T2["1 FT, any player in game<br/>PLUS loss of possession<br/>the one tech that flips possession"]
+    T1 -->|"No"| T3["1 FT, any player in game<br/>resume at POI, direct side-out"]
+    T2 --> T4{"2nd tech for this<br/>player or coach?"}
+    T3 --> T4
+    T4 -->|"Yes"| T5["EJECTION<br/>+ next-game suspension flag"]
+    T4 -->|"No"| FT
+    T5 --> FT
+
+    C -->|"Flagrant"| F1{"FF1 or FF2?"}
+    F1 -->|"FF1"| F2["2 FTs + possession FTLE frontcourt<br/>full shot-clock reset<br/>2nd FF1 = ejection"]
+    F1 -->|"FF2"| F3["2 FTs + possession FTLE frontcourt<br/>IMMEDIATE ejection + suspension"]
+    F2 --> FT
+    F3 --> FT
+
+    C -->|"Special 1-FT family — S8"| SP{"Which kind?"}
+    SP -->|"Transition take foul"| SP1["1 FT any player in game<br/>fouled team RETAINS ball, side-out<br/>void in last 2:00 Q4/OT + all 2OT"]
+    SP -->|"Away from play"| SP2["1 FT any player in game — POI"]
+    SP -->|"Flop STEM"| SP3["1 FT — must be a player in the game<br/>AT TIME OF VIOLATION — POI"]
+    SP -->|"Defensive 3-sec"| SP4["1 FT any player in game<br/>possession to offended team at FTLE"]
+    SP1 --> FT
+    SP2 --> FT
+    SP3 --> FT
+    SP4 --> FT
+
+    FT["FT sequence — record each MADE / MISSED<br/>shooter pool constrained by onCourtReducer"] --> D1{"Any player now at<br/>6 personal fouls? — S5"}
+    D1 -->|"Yes"| D2["DQ — buttons disabled, sub prompt<br/>If the DQ'd player was owed FTs:<br/>coach picks sub, SUB_IN logged BEFORE FTs,<br/>sub MUST remain in game"]
+    D1 -->|"No"| Z
+    D2 --> Z
+    Z["Append ALL emitted events as ONE undo-group"]
+
+    style Z fill:#2d6a4f,color:#fff
+    style D2 fill:#9d0208,color:#fff
+    style T2 fill:#e85d04,color:#fff
