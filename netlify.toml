@@ -1,0 +1,17 @@
+# Netlify build settings — kept in version control so the dashboard can't drift.
+# The app is a fully static Vite build: rosters are baked in at build time and
+# there is no backend (local-first through Phase 5; real-time is Phase 6 only).
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# No SPA redirect rule yet — the app is a single page with no client-side
+# routing. If a later phase adds routes, add:
+#   [[redirects]]
+#     from = "/*"
+#     to = "/index.html"
+#     status = 200
