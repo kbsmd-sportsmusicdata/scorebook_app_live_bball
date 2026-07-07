@@ -55,7 +55,7 @@ export function parseRosters(csvText) {
     if (!team) {
       team = {
         teamId: row.team_id,
-        name: row.team_name || `Team ${row.team_id}`,
+        name: row.team_name || 'Unknown Team',
         logo: row.team_logo || '',
         color: teamColorFor(row),
         players: [],
