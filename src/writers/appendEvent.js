@@ -23,7 +23,7 @@ export function _setClock(fn) {
   now = fn ?? (() => Date.now());
 }
 
-export function appendEvent(game, { type, team = null, playerId = null, period, payload = {} }) {
+export function appendEvent(game, { type, team = null, playerId = null, period, payload = {}, groupSeq = null }) {
   if (!isKnownEventType(type)) {
     throw new Error(`Unknown event type: ${type}`);
   }
@@ -49,6 +49,19 @@ export function appendEvent(game, { type, team = null, playerId = null, period, 
     playerId,
     payload,
   };
+  if (groupSeq != null) event.groupSeq = groupSeq;
 
   return { ...game, events: [...events, event] };
+}
+
+// Batch write for wizard flows: appends inputs in order, all stamped with one
+// shared groupSeq (the first event's seq). Spec convention: "one undo removes
+// the foul and all its FT events together" — Phase 4's undo pops whole groups.
+export function appendEvents(game, inputs) {
+  const firstSeq = game.events.length > 0 ? game.events[game.events.length - 1].seq + 1 : 1;
+  let next = game;
+  for (const input of inputs) {
+    next = appendEvent(next, { ...input, groupSeq: firstSeq });
+  }
+  return next;
 }

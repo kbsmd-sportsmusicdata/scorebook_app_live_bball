@@ -43,13 +43,16 @@ export function isEjected(stats) {
 }
 
 // How much a foul adds to the player's count-toward-six.
-function countsTowardSix(foulType) {
-  switch (foulType) {
+function countsTowardSix(payload) {
+  switch (payload?.foulType) {
     case 'technical':
       return WPBA.technicals.countsTowardPlayerSix ? 1 : 0; // [LEAGUE CLARIFICATION] default false
     case 'flagrant1':
     case 'flagrant2':
       return WPBA.flagrant.countsTowardPlayerSix ? 1 : 0; // [LEAGUE CLARIFICATION] default false
+    case 'special':
+      // S8 family — per-kind convention from config (see the config comment)
+      return (WPBA.specialFouls.kinds[payload.specialKind]?.countsTowardPlayerSix ?? true) ? 1 : 0;
     default:
       return 1; // personal AND offensive (S6: an offensive foul is a personal foul)
   }
@@ -92,7 +95,7 @@ export function playerStatsReducer(events) {
           else s.technicals += 1;
         } else if (foulType === 'flagrant1') s.flagrant1 += 1;
         else if (foulType === 'flagrant2') s.flagrant2 += 1;
-        s.fouls += countsTowardSix(foulType);
+        s.fouls += countsTowardSix(event.payload);
         break;
       }
       case 'SUB_IN':
