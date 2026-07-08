@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { EVENT_TYPES, EVENT_TYPE_NAMES } from '../writers/eventTypes.js';
-import { currentPeriod } from '../writers/appendEvent.js';
+import { templateFor } from '../writers/eventTemplates.js';
 import { logReducer } from '../reducers/logReducer.js';
 
 // Dev event inspector (Phase 1) — the raw-log debugger the project plan says
@@ -8,31 +8,25 @@ import { logReducer } from '../reducers/logReducer.js';
 // from logReducer over the append-only log, voided entries struck through,
 // raw JSON one <details> away.
 
-function templateFor(type, events) {
-  const template = structuredClone(EVENT_TYPES[type].payloadTemplate);
-  if (type === 'PERIOD_START') {
-    template.period = (currentPeriod(events) ?? 0) + 1;
-  } else if (type === 'PERIOD_END' || type === 'LAST_TWO_START') {
-    template.period = currentPeriod(events) ?? 1;
-  }
-  return template;
-}
-
 export default function EventInspector({ game, onAppend }) {
   const { events, rosters } = game;
   const [type, setType] = useState('PERIOD_START');
   const [team, setTeam] = useState('home');
   const [playerId, setPlayerId] = useState('');
-  const [payloadText, setPayloadText] = useState(() => JSON.stringify(templateFor('PERIOD_START', events), null, 2));
+  // null = payload follows the live log-aware template (CORRECTION → latest
+  // seq, FTs → next attempt, periods → current). A hand edit pins the draft;
+  // a successful append or type switch releases it back to the template.
+  const [payloadDraft, setPayloadDraft] = useState(null);
   const [error, setError] = useState(null);
 
   const spec = EVENT_TYPES[type];
   const log = useMemo(() => logReducer(events, rosters), [events, rosters]);
   const teamPlayers = team === 'league' ? [] : (rosters[team]?.players ?? []);
+  const payloadText = payloadDraft ?? JSON.stringify(templateFor(type, events), null, 2);
 
   const pickType = (nextType) => {
     setType(nextType);
-    setPayloadText(JSON.stringify(templateFor(nextType, events), null, 2));
+    setPayloadDraft(null);
     setError(null);
     // 'league' is only a valid team for TIMEOUT — don't let it leak into other events.
     if (nextType !== 'TIMEOUT' && team === 'league') {
@@ -57,8 +51,7 @@ export default function EventInspector({ game, onAppend }) {
         payload,
       });
       setError(null);
-      // Re-seed the template so period-carrying types stay current.
-      setPayloadText(JSON.stringify(templateFor(type, events), null, 2));
+      setPayloadDraft(null); // back to the live template, now one event ahead
     } catch (e) {
       setError(e.message);
     }
@@ -126,7 +119,7 @@ export default function EventInspector({ game, onAppend }) {
             <span className="font-medium text-slate-600">Payload (JSON)</span>
             <textarea
               value={payloadText}
-              onChange={(e) => setPayloadText(e.target.value)}
+              onChange={(e) => setPayloadDraft(e.target.value)}
               rows={5}
               spellCheck={false}
               className="rounded-lg border border-slate-300 px-2 py-1.5 font-mono text-xs"

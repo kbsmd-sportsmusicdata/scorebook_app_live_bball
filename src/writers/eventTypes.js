@@ -26,8 +26,15 @@ export const EVENT_TYPES = {
     payloadTemplate: { shotValue: 2, assistedBy: null, reboundedBy: null },
   },
 
-  // Free throws — attemptOf tracks 1-of-2 etc.; context ties the attempt to
-  // what produced it (bonus | andOne | technical | ...).
+  // Free throws. attemptOf: { n, of } — n is the ATTEMPT NUMBER within the
+  // awarded sequence and of is the total attempts awarded; whether the attempt
+  // was made or missed is carried by the EVENT TYPE, never by attemptOf.
+  //   FT_MADE   {attemptOf: {n:1, of:2}}  = "attempt 1 of 2 — made"
+  //   FT_MISSED {attemptOf: {n:2, of:2}}  = "attempt 2 of 2 — missed"
+  // So a player splitting a pair logs two events: FT_MADE{1 of 2} then
+  // FT_MISSED{2 of 2}. It NEVER means "made 1 out of 2 total" — totals
+  // (FTM/FTA) are derived by playerStatsReducer, not stored in payloads.
+  // context ties the attempt to what produced it (bonus | andOne | technical | ...).
   FT_MADE: {
     category: 'freeThrow',
     needsTeam: true,
