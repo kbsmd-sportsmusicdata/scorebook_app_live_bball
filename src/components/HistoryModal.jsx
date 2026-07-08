@@ -37,8 +37,8 @@ export default function HistoryModal({ game, onUndoToSeq, onCorrect, onClose }) 
       {events.length === 0 ? (
         <p className="text-sm text-slate-500">No events yet.</p>
       ) : (
-        {/* Render newest-first in the DOM so tab order matches visual order (a11y);
-            flex-col-reverse would visually flip but leave DOM/tab order stale. */}
+        // Render newest-first in the DOM so tab order matches visual order (a11y);
+        // flex-col-reverse would visually flip but leave DOM/tab order stale.
         <ol className="flex max-h-[60vh] flex-col gap-1 overflow-y-auto pr-1">
           {[...log].reverse().map((entry) => {
             const isVoidingTarget = entry.type === 'CORRECTION';
