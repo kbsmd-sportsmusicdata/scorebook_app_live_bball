@@ -15,6 +15,9 @@ function playerLookup(rosters) {
     for (const player of rosters?.[side]?.players ?? []) {
       byId.set(player.playerId, player);
     }
+    for (const coach of rosters?.[side]?.coaches ?? []) {
+      if (coach.coachId) byId.set(coach.coachId, { name: `${coach.name} (${coach.role})`, jersey: null });
+    }
   }
   return byId;
 }
@@ -47,7 +50,14 @@ function describe(event, { players, teamNames }) {
     }
     case 'FOUL': {
       const shooting = payload.shooting ? ', shooting' : '';
-      return `${payload.foulType} foul${shooting} on ${who}`;
+      const kind = payload.specialKind ? ` (${payload.specialKind})` : '';
+      const source =
+        payload.source === 'excessiveTimeout'
+          ? ' (excessive timeout)'
+          : payload.source === 'reentryPenalty'
+            ? ' (re-entry penalty, compounds the base foul)'
+            : '';
+      return `${payload.foulType} foul${kind}${shooting}${source} on ${who}`;
     }
     case 'PERIOD_START':
       return `Start of ${periodLabel(event.period)}`;
@@ -66,6 +76,8 @@ function describe(event, { players, teamNames }) {
       }
       return `30-second timeout — ${teamName}`;
     case 'SUB_IN':
+      if (payload.ruleException) return `${who} RE-ENTERS UNDER PENALTY (technical charged)`;
+      if (payload.mustRemain) return `${who} checks in (FT substitute — must remain in game)`;
       return `${who} checks in`;
     case 'SUB_OUT':
       return `${who} checks out`;

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import rosterCsv from '../docs/rosters/wpba_2026_rosters_master.csv?raw';
 import { parseRosters } from './data/parseRosters.js';
 import { createGame } from './writers/createGame.js';
-import { appendEvent } from './writers/appendEvent.js';
+import { appendEvents } from './writers/appendEvent.js';
 import SetupScreen from './components/SetupScreen.jsx';
 import GameScreen from './components/GameScreen.jsx';
 
@@ -19,7 +19,7 @@ export default function App() {
   return (
     <GameScreen
       game={game}
-      onAppend={(input) => setGame(appendEvent(game, input))}
+      onCommitGroup={(inputs) => setGame(appendEvents(game, inputs))}
       onExit={() => {
         if (window.confirm('Exit this game? The event log will be discarded (no persistence until Phase 5).')) {
           setGame(null);

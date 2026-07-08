@@ -65,7 +65,13 @@ export function parseRosters(csvText) {
     }
 
     if (row.type === 'coach') {
-      team.coaches.push({ name: row.full_name, role: row.position });
+      // coachId lets coaches be foul targets (technicals — e.g. the
+      // excessive-timeout tech is charged to the head coach per config)
+      team.coaches.push({
+        name: row.full_name,
+        role: row.position,
+        coachId: `${row.team_id}-coach-${slugify(row.full_name)}`,
+      });
     } else if (row.type === 'player') {
       const jersey = String(row.jersey_number ?? '').trim();
       team.players.push({

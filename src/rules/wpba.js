@@ -31,6 +31,39 @@ export const WPBA = {
 
   offensiveFoulCountsTowardTeamFouls: false, // explicit: personal foul yes, team foul NO, never FTs (S6)
 
+  andOneFreeThrows: 1, // made basket + shooting foul = exactly ONE FT, never stacked with bonus (S4)
+
+  // The S8 special 1-FT family (§4 recommendation #6: one generic payload,
+  // shared 1-FT resolution, per-kind eligibility quirks). S8 specifies wizard
+  // behavior (1 FT, shooter pool, possession) but NOT how these count toward
+  // player/team foul totals — the countsToward* values below are conventions
+  // to confirm with Krystal/league, isolated here so an answer is a one-line fix.
+  specialFouls: {
+    freeThrows: 1,
+    kinds: {
+      transitionTake: {
+        shooter: 'anyInGame',
+        possession: 'fouled team retains, side-out at POI',
+        voidInLastTwoQ4OTAnd2OT: true, // does not apply late Q4/OT or in 2OT
+        countsTowardPlayerSix: true, // convention — a take foul is a personal foul
+        countsTowardTeamFouls: true, // convention
+      },
+      awayFromPlay: {
+        shooter: 'anyInGame',
+        possession: 'POI',
+        countsTowardPlayerSix: true, // convention
+        countsTowardTeamFouls: true, // convention
+      },
+      flop: { treatAsTechnical: true }, // floppingIsTechnical — resolves via the technical branch + its ladder
+      defensive3s: {
+        shooter: 'anyInGame',
+        possession: 'offended team at FTLE',
+        countsTowardPlayerSix: false, // convention — violation-like, NBA-style
+        countsTowardTeamFouls: false, // convention
+      },
+    },
+  },
+
   technicals: {
     freeThrows: 1, // shot by any player in the game at the time
     resume: 'POI, direct side-out',
