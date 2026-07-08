@@ -52,7 +52,7 @@ function countsTowardSix(payload) {
       return WPBA.flagrant.countsTowardPlayerSix ? 1 : 0; // [LEAGUE CLARIFICATION] default false
     case 'special':
       // S8 family — per-kind convention from config (see the config comment)
-      return (WPBA.specialFouls.kinds[payload.specialKind]?.countsTowardPlayerSix ?? true) ? 1 : 0;
+      return (WPBA.specialFouls.kinds[payload?.specialKind]?.countsTowardPlayerSix ?? true) ? 1 : 0;
     default:
       return 1; // personal AND offensive (S6: an offensive foul is a personal foul)
   }

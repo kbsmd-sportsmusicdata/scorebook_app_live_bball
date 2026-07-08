@@ -24,7 +24,7 @@ function countsTowardTeamFouls(payload) {
     case 'special':
       // S8 family — per-kind convention from config (unverified against the
       // rulebook's team-foul language; see the config comment)
-      return WPBA.specialFouls.kinds[payload.specialKind]?.countsTowardTeamFouls ?? true;
+      return WPBA.specialFouls.kinds[payload?.specialKind]?.countsTowardTeamFouls ?? true;
     default:
       return true; // personal (shooting or not — S4)
   }

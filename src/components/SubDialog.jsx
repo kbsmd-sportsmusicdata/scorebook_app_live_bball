@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { WPBA } from '../rules/wpba.js';
 import { onCourtReducer } from '../reducers/onCourtReducer.js';
 import { playerStatsReducer, statsFor } from '../reducers/playerStatsReducer.js';
+import { activeEvents } from '../reducers/voids.js';
 import { Modal, PlayerChip } from './ui.jsx';
 
 // Substitution flow (Phase 3), driven by onCourtReducer. Records subs, does
@@ -54,7 +55,7 @@ export default function SubDialog({ game, onCommitGroup, onClose }) {
       const s = statsFor(stats, p.playerId);
       if (!s.dq || s.ejected) continue;
       let count = 0;
-      for (const event of game.events) {
+      for (const event of activeEvents(game.events)) {
         if (event.type === 'FOUL' && event.playerId === p.playerId) {
           count += 1;
           if (count === WPBA.playerFoulLimit && event.seq > bestSeq) {

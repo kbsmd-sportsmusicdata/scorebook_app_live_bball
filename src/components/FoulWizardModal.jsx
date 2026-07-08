@@ -200,6 +200,13 @@ export default function FoulWizardModal({ game, onCommitGroup, onClose }) {
   const ft = resolution.freeThrows;
   if (ft && ftResults.length < ft.count) {
     const side = other(answers.team);
+    // The owed shooter may be DQ'd/ejected (S5 variant). Track the ORIGINAL
+    // shooter separately from the currently selected one, so the substitute
+    // panel stays visible after a sub is chosen and re-picking always subs
+    // out the original, never a previous substitute.
+    const originalShooterId = preFtSub ? preFtSub.out : shooterId;
+    const originalStats = originalShooterId ? statsFor(stats, originalShooterId) : null;
+    const shooterNeedsSub = originalStats && (originalStats.dq || originalStats.ejected);
     const shooterStats = shooterId ? statsFor(stats, shooterId) : null;
     const shooterOut = shooterStats && (shooterStats.dq || shooterStats.ejected);
     const bench = rosters[side].players.filter((p) => !onCourt[side].includes(p.playerId));
@@ -216,7 +223,7 @@ export default function FoulWizardModal({ game, onCommitGroup, onClose }) {
           ))}
         </div>
 
-        {shooterOut && (
+        {shooterNeedsSub && (
           <div className="mb-3 rounded-lg bg-red-50 p-3 text-xs text-red-800">
             <p className="font-bold">Shooter is disqualified — coach picks a substitute (S5).</p>
             <p className="mb-2">The sub shoots and MUST remain in the game; the SUB is logged before the FTs.</p>
@@ -230,7 +237,7 @@ export default function FoulWizardModal({ game, onCommitGroup, onClose }) {
                     color={rosters[side].color}
                     selected={preFtSub?.in === p.playerId}
                     onClick={() => {
-                      setPreFtSub({ team: side, out: shooterId, in: p.playerId });
+                      setPreFtSub({ team: side, out: originalShooterId, in: p.playerId });
                       setShooterId(p.playerId);
                     }}
                   />
