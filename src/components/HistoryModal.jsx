@@ -25,7 +25,9 @@ export default function HistoryModal({ game, onUndoToSeq, onCorrect, onClose }) 
   const [reason, setReason] = useState('');
 
   const submitCorrection = () => {
-    onCorrect(correctingSeq, reason.trim());
+    const trimmed = reason.trim();
+    if (!trimmed) return; // required — CORRECTION is an official-scorer act, not a silent void
+    onCorrect(correctingSeq, trimmed);
     setCorrectingSeq(null);
     setReason('');
   };
@@ -35,8 +37,10 @@ export default function HistoryModal({ game, onUndoToSeq, onCorrect, onClose }) 
       {events.length === 0 ? (
         <p className="text-sm text-slate-500">No events yet.</p>
       ) : (
-        <ol className="flex max-h-[60vh] flex-col-reverse gap-1 overflow-y-auto pr-1">
-          {log.map((entry) => {
+        {/* Render newest-first in the DOM so tab order matches visual order (a11y);
+            flex-col-reverse would visually flip but leave DOM/tab order stale. */}
+        <ol className="flex max-h-[60vh] flex-col gap-1 overflow-y-auto pr-1">
+          {[...log].reverse().map((entry) => {
             const isVoidingTarget = entry.type === 'CORRECTION';
             const targetIsAlreadyVoided = voided.has(entry.seq);
             const groupsToUndo = groupsFromAndIncluding(events, entry.seq);
@@ -89,9 +93,9 @@ export default function HistoryModal({ game, onUndoToSeq, onCorrect, onClose }) 
                       autoFocus
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
-                      placeholder="Reason (e.g. ref waved off the shot)"
+                      placeholder="Reason (required — e.g. ref waved off the shot)"
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter') submitCorrection();
+                        if (e.key === 'Enter' && reason.trim()) submitCorrection();
                         if (e.key === 'Escape') {
                           setCorrectingSeq(null);
                           setReason('');
@@ -102,7 +106,8 @@ export default function HistoryModal({ game, onUndoToSeq, onCorrect, onClose }) 
                     <button
                       type="button"
                       onClick={submitCorrection}
-                      className="rounded bg-amber-500 px-2 py-1 font-semibold text-white hover:bg-amber-600"
+                      disabled={!reason.trim()}
+                      className="rounded bg-amber-500 px-2 py-1 font-semibold text-white hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Void
                     </button>
