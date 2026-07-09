@@ -1,1 +1,23 @@
 @import 'tailwindcss';
+
+/* Print view (Phase 5 box score). Hide everything except the .print-container
+   in the currently-open modal, then let it render at full page. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-container,
+  .print-container * {
+    visibility: visible;
+  }
+  .fixed {
+    position: static !important;
+    background: none !important;
+  }
+  .rounded-2xl {
+    box-shadow: none !important;
+  }
+  @page {
+    margin: 0.5in;
+  }
+}
