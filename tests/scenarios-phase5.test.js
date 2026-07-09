@@ -274,4 +274,12 @@ describe('Scenario 14 — export → import round-trip', () => {
     expect(name).toMatch(/\.json$/);
     expect(name).not.toMatch(/[/\\:]/);
   });
+
+  it('fileNameFor sanitizes hostile characters in gameId', () => {
+    const evil = { gameId: '../../../etc/passwd:leak?' };
+    const name = fileNameFor(evil);
+    expect(name).not.toMatch(/[/\\:?]/);
+    expect(name).not.toContain('..');
+    expect(name).toMatch(/\.json$/);
+  });
 });

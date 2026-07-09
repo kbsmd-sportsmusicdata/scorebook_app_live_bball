@@ -8,8 +8,10 @@ import { periodLabel } from '../reducers/periodLabel.js';
 
 function playerName(rosters, side, playerId) {
   const p = rosters[side].players.find((x) => x.playerId === playerId);
-  if (!p) return playerId;
-  return p.jersey != null ? `#${p.jersey}` : p.name.split(/\s+/).map((s) => s[0]).join('');
+  if (!p) return playerId ?? '?';
+  if (p.jersey != null) return `#${p.jersey}`;
+  if (!p.name) return '?'; // per the scorer-log convention: obviously broken beats plausible
+  return p.name.split(/\s+/).map((s) => s[0]).join('');
 }
 
 export default function RunningScorePanel({ game }) {

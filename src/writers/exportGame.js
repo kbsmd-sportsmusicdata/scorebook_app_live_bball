@@ -35,5 +35,9 @@ export function importGame(json) {
 
 export function fileNameFor(game) {
   const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  return `${game.gameId ?? 'game'}--${stamp}.json`;
+  // Strip anything that isn't a filesystem-safe identifier char — belt and
+  // braces alongside createGame's slugify, since a hand-imported doc could
+  // carry any gameId string.
+  const safeId = String(game.gameId ?? 'game').replace(/[^a-zA-Z0-9_-]/g, '_');
+  return `${safeId}--${stamp}.json`;
 }
