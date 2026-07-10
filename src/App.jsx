@@ -75,6 +75,15 @@ export default function App() {
   const correct = (voidsSeq, reason) =>
     commitGroup([{ type: 'CORRECTION', payload: { voidsSeq, reason } }]);
 
+  const importGame = (restored) => {
+    // S14: import replaces the current game with the log-derived document.
+    // Undo/redo history is intentionally lost — it lives alongside the game,
+    // not inside it, and doesn't survive a round-trip through JSON.
+    setGame(restored);
+    setUndoStack([]);
+    setPendingConfirm(false);
+  };
+
   return (
     <GameScreen
       game={game}
@@ -86,6 +95,7 @@ export default function App() {
       onUndoGroups={undoGroups}
       onRedo={redoOne}
       onCorrect={correct}
+      onImport={importGame}
       onDismissConfirm={() => setPendingConfirm(false)}
       onExit={() => {
         if (window.confirm('Exit this game? The event log will be discarded (no persistence until Phase 5).')) {

@@ -8,6 +8,11 @@ import SubDialog from './SubDialog.jsx';
 import TimeoutDialog from './TimeoutDialog.jsx';
 import HistoryModal from './HistoryModal.jsx';
 import UndoConfirmModal from './UndoConfirmModal.jsx';
+import RunningScorePanel from './RunningScorePanel.jsx';
+import TimeoutsPanel from './TimeoutsPanel.jsx';
+import BoxScoreModal from './BoxScoreModal.jsx';
+import StandingsModal from './StandingsModal.jsx';
+import ExportImportModal from './ExportImportModal.jsx';
 import { scoreReducer } from '../reducers/scoreReducer.js';
 import { teamFoulsReducer } from '../reducers/teamFoulsReducer.js';
 import { playerStatsReducer } from '../reducers/playerStatsReducer.js';
@@ -28,6 +33,7 @@ export default function GameScreen({
   onUndoGroups,
   onRedo,
   onCorrect,
+  onImport,
   onDismissConfirm,
   onExit,
 }) {
@@ -97,9 +103,28 @@ export default function GameScreen({
             History
           </button>
           <span className="mx-1 h-6 w-px bg-slate-200" />
-          <span className="text-xs text-slate-500">
-            TO: {game.rosters.home.name} {timeouts.home.remaining} · {game.rosters.away.name} {timeouts.away.remaining}
-          </span>
+          <button
+            type="button"
+            onClick={() => setDialog('box')}
+            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Box score
+          </button>
+          <button
+            type="button"
+            onClick={() => setDialog('standings')}
+            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Standings
+          </button>
+          <button
+            type="button"
+            onClick={() => setDialog('export')}
+            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Export
+          </button>
+          <span className="mx-1 h-6 w-px bg-slate-200" />
           <button
             type="button"
             onClick={onExit}
@@ -123,6 +148,10 @@ export default function GameScreen({
           onOpenSub={() => setDialog('sub')}
           onOpenTimeout={() => setDialog('timeout')}
         />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <TimeoutsPanel game={game} />
+          <RunningScorePanel game={game} />
+        </div>
         <FoulsPanel teamFouls={teamFouls} playerStats={playerStats} rosters={game.rosters} />
         <EventInspector game={game} onAppend={(input) => commitGroup([input])} />
       </div>
@@ -139,6 +168,18 @@ export default function GameScreen({
           }}
           onCorrect={(voidsSeq, reason) => {
             onCorrect(voidsSeq, reason);
+            setDialog(null);
+          }}
+          onClose={() => setDialog(null)}
+        />
+      )}
+      {dialog === 'box' && <BoxScoreModal game={game} onClose={() => setDialog(null)} />}
+      {dialog === 'standings' && <StandingsModal game={game} onClose={() => setDialog(null)} />}
+      {dialog === 'export' && (
+        <ExportImportModal
+          game={game}
+          onImport={(imported) => {
+            onImport(imported);
             setDialog(null);
           }}
           onClose={() => setDialog(null)}
