@@ -26,7 +26,7 @@ export default function ScoreBar({ score, rosters, teamFouls }) {
                 </div>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-bold tabular-nums text-slate-800">{score[side]}</span>
-                  {teamFouls && (
+                  {teamFouls?.teamFouls && (
                     <span className="text-xs tabular-nums text-slate-400" title="team fouls this period">
                       TF {teamFouls.teamFouls[side]}
                     </span>

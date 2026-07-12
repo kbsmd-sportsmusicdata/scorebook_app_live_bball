@@ -15,7 +15,7 @@ import { Modal } from './ui.jsx';
 export default function UndoConfirmModal({ description, stepsRemaining, undoneCount, onConfirm, onCancel }) {
   const empty = !description || description.length === 0;
   return (
-    <Modal title="Undo — confirm" onClose={onCancel} static>
+    <Modal title="Undo — confirm" onClose={onCancel} isStatic>
       <p className="mb-2 text-sm text-slate-700">
         {empty ? 'Nothing left to undo.' : 'Next undo removes:'}
       </p>
