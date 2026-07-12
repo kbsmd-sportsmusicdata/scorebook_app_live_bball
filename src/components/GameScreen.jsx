@@ -19,7 +19,7 @@ import { playerStatsReducer } from '../reducers/playerStatsReducer.js';
 import { onCourtReducer } from '../reducers/onCourtReducer.js';
 import { gamePhaseReducer } from '../reducers/gamePhaseReducer.js';
 import { timeoutsReducer } from '../reducers/timeoutsReducer.js';
-import { describeLastGroup } from '../writers/undo.js';
+import { describeLastGroup, undoStepCount } from '../writers/undo.js';
 
 const SCORING_TYPES = new Set(['SHOT_MADE', 'FT_MADE']);
 
@@ -37,8 +37,11 @@ export default function GameScreen({
   onDismissConfirm,
   onExit,
 }) {
-  const [dialog, setDialog] = useState(null); // 'foul' | 'sub' | 'timeout' | 'history' | null
-  const [confirmPreview, setConfirmPreview] = useState(null);
+  const [dialog, setDialog] = useState(null); // 'foul' | 'sub' | 'timeout' | 'history' | 'box' | 'standings' | 'export' | null
+  // Undo stepper: open flag + count of undos performed inside it this visit.
+  // The preview is recomputed live from game.events on every render, so each
+  // confirmed pop refreshes to the next group with the modal still open.
+  const [undoStepper, setUndoStepper] = useState(null); // { undone: n } | null
 
   const score = useMemo(() => scoreReducer(game.events), [game.events]);
   const teamFouls = useMemo(() => teamFoulsReducer(game.events), [game.events]);
@@ -62,7 +65,7 @@ export default function GameScreen({
   const tapUndo = () => {
     if (!undoAvailable) return;
     if (pendingConfirm) {
-      setConfirmPreview(describeLastGroup(game.events, game.rosters));
+      setUndoStepper({ undone: 0 });
     } else {
       onUndo();
     }
@@ -136,7 +139,7 @@ export default function GameScreen({
       </header>
 
       <div className="mx-auto flex max-w-6xl flex-col gap-4 p-6">
-        <ScoreBar score={score} rosters={game.rosters} />
+        <ScoreBar score={score} rosters={game.rosters} teamFouls={teamFouls} />
         <ScoringSurface
           game={game}
           phase={phase}
@@ -185,15 +188,17 @@ export default function GameScreen({
           onClose={() => setDialog(null)}
         />
       )}
-      {confirmPreview && (
+      {undoStepper && (
         <UndoConfirmModal
-          description={confirmPreview}
+          description={describeLastGroup(game.events, game.rosters)}
+          stepsRemaining={undoStepCount(game.events)}
+          undoneCount={undoStepper.undone}
           onConfirm={() => {
             onUndo();
-            setConfirmPreview(null);
+            setUndoStepper({ undone: undoStepper.undone + 1 }); // stays open, preview refreshes
           }}
           onCancel={() => {
-            setConfirmPreview(null);
+            setUndoStepper(null);
             onDismissConfirm();
           }}
         />

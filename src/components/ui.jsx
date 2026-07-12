@@ -1,8 +1,14 @@
 // Tiny shared primitives for the Phase 3 input dialogs.
 
-export function Modal({ title, onClose, children }) {
+// static: when true, tapping the backdrop does NOT dismiss — only the ✕ or an
+// explicit button. Use for confirmations, where a stray tap (or a tablet
+// "ghost tap" from the tap that opened the modal) must never eat the dialog.
+export function Modal({ title, onClose, children, static: isStatic = false }) {
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/50 p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/50 p-4"
+      onClick={isStatic ? undefined : onClose}
+    >
       <div
         className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
