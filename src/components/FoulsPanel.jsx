@@ -43,6 +43,13 @@ export default function FoulsPanel({ teamFouls, playerStats, rosters }) {
                 <span className="font-bold tabular-nums text-slate-800">
                   {teamFouls.teamFouls[side]}
                 </span>
+                {/* red PENALTY on the team that committed the fouls; green
+                    BONUS on the team that shoots — both sides tell the story */}
+                {teamFouls.bonus[side === 'home' ? 'away' : 'home'] && (
+                  <span className="rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold uppercase text-white">
+                    Penalty
+                  </span>
+                )}
                 {teamFouls.bonus[side] && (
                   <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold uppercase text-white">
                     Bonus
